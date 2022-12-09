@@ -1,0 +1,7 @@
+name: Python
+
+on:
+  push:
+    branches: []
+    paths-ignore:
+      - './README.md'
