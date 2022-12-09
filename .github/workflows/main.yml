@@ -2,6 +2,52 @@ name: Python
 
 on:
   push:
-    branches: []
+    branches: ['main']
     paths-ignore:
       - './README.md'
+
+jobs:
+
+  build:
+    if: ${{ false }}
+    name: Build Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install -r ./requirements.txt
+
+      - name: Validate Code
+        run: python -m pylint -E .\src\
+
+      - name: test
+        run: python -m unittest discover -v -s ./src -p test_*.py
+
+  publish:
+    if: ${{ false }}
+    needs: [ build ]
+    name: Publish Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install build twine
+
+      - name: Build
+        run: python -m build
+
+      - name: Publish to PyPI
+        run: |
+          python -m twine upload ./dist/* \
+            --username __token__ \
+            --password ${{ secrets.PYPI_API_TOKEN }}
