@@ -9,8 +9,7 @@ on:
 jobs:
 
   build:
-    if: ${{ false }}
-    name: Build Python
+    name: Build And Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,10 +29,9 @@ jobs:
       - name: Tests
         run: python -m unittest discover -v -s ./tests -p test_*.py
 
-  publish:
-    if: ${{ false }}
+  upload:
     needs: [ build ]
-    name: Publish Python
+    name: Upload Package
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
