@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "discord.ext.prometheus"
+name = "discord-ext-prometheus"
 version = "0.0.1"
 authors = [
   { name="Apollo-Roboto", email="Apollo_Roboto@outlook.com" },
@@ -12,12 +12,14 @@ description  = "An extension for the discord.py library that enables Prometheus 
 readme = "README.md"
 license = "MIT"
 keywords = ["Prometheus", "Discord", "Metrics", "Bot", "Analytics", "Extension"]
+requires-python = ">=3.10"
 dependencies = [
 	"prometheus-client >= 0.15, < 1",
 	"discord.py >= 2.1.0, < 3",
 ]
 classifiers = [
 	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
 ]
 

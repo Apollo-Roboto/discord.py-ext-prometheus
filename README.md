@@ -1,7 +1,7 @@
 # Installation
 
 ```bash
-pip install discord.ext.prometheus
+pip install discord-ext-prometheus
 ```
 
 # Exposed Metrics
@@ -18,8 +18,8 @@ pip install discord.ext.prometheus
 | `logging`                      | Log entries                                   | `logger`, `level` |
 
 Notes:
-- on_interaction are application interactions such as slash commands
-- on_command are traditional message commands (usualy using the command prefix)
+- `on_interaction` are application interactions such as slash commands
+- `on_command` are traditional message commands (usualy using the command prefix)
 
 # Grafana Dashboard
 
