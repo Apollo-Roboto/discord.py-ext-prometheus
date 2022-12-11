@@ -6,19 +6,20 @@ pip install discord-ext-prometheus
 
 # Exposed Metrics
 
-| Name                           | Documentation                                 | Labels            |
-|--------------------------------|-----------------------------------------------|-------------------|
-| `discord_connected`            | Determines if the bot is connected to Discord | None              |
-| `discord_event_on_interaction` | Amount of interactions                        | `command`         |
-| `discord_event_on_command`     | Amount of commands                            | `command`         |
-| `discord_stat_total_guilds`    | Amount of guild this bot is a member of       | None              |
-| `discord_stat_total_channels`  | Amount of channels this bot is has access to  | None              |
-| `discord_stat_total_users`     | Amount of users this bot can see              | None              |
-| `discord_stat_total_commands`  | Amount of commands                            | None              |
-| `logging`                      | Log entries                                   | `logger`, `level` |
+| Name                           | Documentation                                 | Labels                            |
+|--------------------------------|-----------------------------------------------|-----------------------------------|
+| `discord_connected`            | Determines if the bot is connected to Discord | `shard`                           |
+| `discord_latency`              | latency to Discord                            | `shard`                           |
+| `discord_event_on_interaction` | Amount of interactions                        | `shard`, `interaction`, `command` |
+| `discord_event_on_command`     | Amount of commands                            | `shard`, `command`                |
+| `discord_stat_total_guilds`    | Amount of guild this bot is a member of       | None                              |
+| `discord_stat_total_channels`  | Amount of channels this bot is has access to  | None                              |
+| `discord_stat_total_users`     | Amount of users this bot can see              | None                              |
+| `discord_stat_total_commands`  | Amount of commands                            | None                              |
+| `logging`                      | Log entries                                   | `logger`, `level`                 |
 
 Notes:
-- `on_interaction` are application interactions such as slash commands
+- `on_interaction` are application interactions such as slash commands or modals
 - `on_command` are traditional message commands (usualy using the command prefix)
 
 # Grafana Dashboard
