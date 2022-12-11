@@ -1,7 +1,7 @@
 import logging
 from prometheus_client import start_http_server, Counter, Gauge
-from discord.ext import commands
-from discord import Interaction, InteractionType
+from discord.ext import commands, tasks
+from discord import Interaction, InteractionType, AutoShardedClient
 
 log = logging.getLogger('prometheus')
 
@@ -10,16 +10,22 @@ METRIC_PREFIX = 'discord_'
 CONNECTION_GAUGE = Gauge(
 	METRIC_PREFIX + 'connected',
 	'Determines if the bot is connected to Discord',
+	['shard'],
+)
+LATENCY_GAUGE = Gauge(
+	METRIC_PREFIX + 'latency',
+	'latency to Discord',
+	['shard'],
 )
 ON_INTERACTION_COUNTER = Counter(
 	METRIC_PREFIX + 'event_on_interaction',
 	'Amount of interactions',
-	['command'],
+	['shard', 'interaction', 'command'],
 )
 ON_COMMAND_COUNTER = Counter(
 	METRIC_PREFIX + 'event_on_command',
 	'Amount of commands',
-	['command'],
+	['shard', 'command'],
 )
 GUILD_GAUGE = Gauge(
 	METRIC_PREFIX + 'stat_total_guilds',
@@ -56,20 +62,10 @@ class PrometheusCog(commands.Cog):
 
 		self.started = False
 
-	@commands.Cog.listener()
-	async def on_ready(self):
-
-		# some gauges needs to be initialized after each reconect
-		# (value could changed during an outtage)
-		self.init_gauges()
-
-		# Set connection back up (since we in on_ready)
-		CONNECTION_GAUGE.set(1)
-
-		# on_ready can be called multiple times, this started
-		# check is to make sure the service does not start twice
-		if not self.started:
-			self.start_prometheus()
+		# start() comes from the @task.loop decorator
+		# pylint: disable=no-member
+		self.latency_loop.start()
+		# pylint: enable=no-member
 
 	def init_gauges(self):
 		log.info('Initializing gauges')
@@ -97,37 +93,65 @@ class PrometheusCog(commands.Cog):
 		start_http_server(self.port)
 		self.started = True
 
+	@tasks.loop(seconds=5)
+	async def latency_loop(self):
+		if isinstance(self.bot, AutoShardedClient):
+			for shard, latency in self.bot.latencies:
+				LATENCY_GAUGE.labels(shard).set(latency)
+		else:
+			LATENCY_GAUGE.labels(None).set(self.bot.latency)
+
+	@commands.Cog.listener()
+	async def on_ready(self):
+
+		# some gauges needs to be initialized after each reconect
+		# (value could changed during an outtage)
+		self.init_gauges()
+
+		# Set connection back up (since we in on_ready)
+		CONNECTION_GAUGE.labels(None).set(1)
+
+		# on_ready can be called multiple times, this started
+		# check is to make sure the service does not start twice
+		if not self.started:
+			self.start_prometheus()
+
 	@commands.Cog.listener()
 	async def on_command(self, ctx: commands.Context):
-		ON_COMMAND_COUNTER.labels(ctx.command.name).inc()
+		shard_id = ctx.guild.shard_id
+		ON_COMMAND_COUNTER.labels(shard_id, ctx.command.name).inc()
 
 	@commands.Cog.listener()
 	async def on_interaction(self, interaction: Interaction):
-		# command name can be None if comming from a view (like a button click)
-		name = None
 
+		shard_id = interaction.guild.shard_id
+
+		# command name can be None if comming from a view (like a button click) or a modal
+		command_name = None
 		if interaction.type == InteractionType.application_command:
-			name = interaction.command.name
-		elif interaction.type == InteractionType.autocomplete:
-			name = 'autocomplete'
-		elif interaction.type == InteractionType.component:
-			name = 'component'
-		elif interaction.type == InteractionType.modal_submit:
-			name = 'modalSubmit'
+			command_name = interaction.command.name
 
-		ON_INTERACTION_COUNTER.labels(name).inc()
+		ON_INTERACTION_COUNTER.labels(shard_id, interaction.type.name, command_name).inc()
 
 	@commands.Cog.listener()
 	async def on_connect(self):
-		CONNECTION_GAUGE.set(1)
+		CONNECTION_GAUGE.labels(None).set(1)
 
 	@commands.Cog.listener()
 	async def on_resumed(self):
-		CONNECTION_GAUGE.set(1)
+		CONNECTION_GAUGE.labels(None).set(1)
 
 	@commands.Cog.listener()
 	async def on_disconnect(self):
-		CONNECTION_GAUGE.set(0)
+		CONNECTION_GAUGE.labels(None).set(0)
+
+	@commands.Cog.listener()
+	async def on_shard_connect(self, shard_id):
+		CONNECTION_GAUGE.labels(shard_id).set(1)
+
+	@commands.Cog.listener()
+	async def on_shard_disconnect(self, shard_id):
+		CONNECTION_GAUGE.labels(shard_id).set(0)
 
 	@commands.Cog.listener()
 	async def on_guild_join(self, _):
