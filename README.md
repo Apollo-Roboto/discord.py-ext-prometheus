@@ -1,3 +1,9 @@
+![PyPi](https://img.shields.io/pypi/v/discord-ext-prometheus.svg)
+
+# discord-ext-prometheus
+
+This is a library that makes it easy to add prometheus metrics to your Python Discord bot.
+
 # Installation
 
 ```bash
@@ -9,7 +15,7 @@ pip install discord-ext-prometheus
 | Name                           | Documentation                                 | Labels                            |
 |--------------------------------|-----------------------------------------------|-----------------------------------|
 | `discord_connected`            | Determines if the bot is connected to Discord | `shard`                           |
-| `discord_latency`              | latency to Discord                            | `shard`                           |
+| `discord_latency`              | Latency to Discord                            | `shard`                           |
 | `discord_event_on_interaction` | Amount of interactions                        | `shard`, `interaction`, `command` |
 | `discord_event_on_command`     | Amount of commands                            | `shard`, `command`                |
 | `discord_stat_total_guilds`    | Amount of guild this bot is a member of       | None                              |
@@ -34,7 +40,9 @@ at `localhost:8000/metrics`.
 ## Sample code with the Prometheus Cog
 
 ```python
-from discord.ext.prometheus import *
+import asyncio
+from discord.ext import commands
+from discord.ext.prometheus import PrometheusCog
 
 async def main():
 	bot = commands.Bot(
@@ -52,8 +60,10 @@ asyncio.run(main())
 ## Sample code with logging metrics
 
 ```python
-from discord.ext.prometheus import *
+import asyncio
 import logging
+from discord.ext import commands
+from discord.ext.prometheus import PrometheusCog, PrometheusLoggingHandler
 
 logging.getLogger().addHandler(PrometheusLoggingHandler())
 
@@ -65,12 +75,12 @@ async def main():
 
 	await bot.add_cog(PrometheusCog(bot))
 
-	logging.info('Starting the bot')
-	await bot.start('YOUR TOKEN')
-
 	@bot.listen()
 	async def on_ready():
 		logging.info(f'Logged in as {bot.user.name}#{bot.user.discriminator}')
+
+	logging.info('Starting the bot')
+	await bot.start('YOUR TOKEN')
 
 asyncio.run(main())
 ```
