@@ -68,7 +68,7 @@ class PrometheusCog(commands.Cog):
 		# pylint: enable=no-member
 
 	def init_gauges(self):
-		log.info('Initializing gauges')
+		log.debug('Initializing gauges')
 
 		num_of_guilds = len(self.bot.guilds)
 		GUILD_GAUGE.set(num_of_guilds)
@@ -89,7 +89,7 @@ class PrometheusCog(commands.Cog):
 		]
 
 	def start_prometheus(self):
-		log.info(f'Starting Prometheus Server on port {self.port}')
+		log.debug(f'Starting Prometheus Server on port {self.port}')
 		start_http_server(self.port)
 		self.started = True
 
@@ -146,7 +146,15 @@ class PrometheusCog(commands.Cog):
 		CONNECTION_GAUGE.labels(None).set(0)
 
 	@commands.Cog.listener()
+	async def on_shard_ready(self, shard_id):
+		CONNECTION_GAUGE.labels(shard_id).set(1)
+
+	@commands.Cog.listener()
 	async def on_shard_connect(self, shard_id):
+		CONNECTION_GAUGE.labels(shard_id).set(1)
+
+	@commands.Cog.listener()
+	async def on_shard_resumed(self, shard_id):
 		CONNECTION_GAUGE.labels(shard_id).set(1)
 
 	@commands.Cog.listener()
