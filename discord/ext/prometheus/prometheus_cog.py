@@ -19,12 +19,12 @@ LATENCY_GAUGE = Gauge(
 )
 ON_INTERACTION_COUNTER = Counter(
 	METRIC_PREFIX + 'event_on_interaction',
-	'Amount of interactions',
+	'Amount of interactions called by users',
 	['shard', 'interaction', 'command'],
 )
 ON_COMMAND_COUNTER = Counter(
 	METRIC_PREFIX + 'event_on_command',
-	'Amount of commands',
+	'Amount of commands called by users',
 	['shard', 'command'],
 )
 GUILD_GAUGE = Gauge(

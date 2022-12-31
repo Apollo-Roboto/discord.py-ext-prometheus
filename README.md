@@ -16,8 +16,8 @@ pip install discord-ext-prometheus
 |--------------------------------|-----------------------------------------------|-----------------------------------|
 | `discord_connected`            | Determines if the bot is connected to Discord | `shard`                           |
 | `discord_latency`              | Latency to Discord                            | `shard`                           |
-| `discord_event_on_interaction` | Amount of interactions                        | `shard`, `interaction`, `command` |
-| `discord_event_on_command`     | Amount of commands                            | `shard`, `command`                |
+| `discord_event_on_interaction` | Amount of interactions called by users        | `shard`, `interaction`, `command` |
+| `discord_event_on_command`     | Amount of commands called by users            | `shard`, `command`                |
 | `discord_stat_total_guilds`    | Amount of guild this bot is a member of       | None                              |
 | `discord_stat_total_channels`  | Amount of channels this bot is has access to  | None                              |
 | `discord_stat_total_users`     | Amount of users this bot can see              | None                              |
@@ -30,7 +30,9 @@ Notes:
 
 # Grafana Dashboard
 
-TODO
+![Dashboard Preview](https://grafana.com/api/dashboards/17670/images/13525/image)
+
+Available to import from [Grafana dashboards](https://grafana.com/grafana/dashboards/17670-discord-bot/)
 
 # How to use
 

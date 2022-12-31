@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "discord-ext-prometheus"
-version = "0.0.5"
+version = "0.1.0"
 authors = [
   { name="Apollo-Roboto", email="Apollo_Roboto@outlook.com" },
 ]
