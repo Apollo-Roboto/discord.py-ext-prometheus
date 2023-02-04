@@ -118,13 +118,13 @@ class PrometheusCog(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_command(self, ctx: commands.Context):
-		shard_id = ctx.guild.shard_id
+		shard_id = ctx.guild.shard_id if ctx.guild else None
 		ON_COMMAND_COUNTER.labels(shard_id, ctx.command.name).inc()
 
 	@commands.Cog.listener()
 	async def on_interaction(self, interaction: Interaction):
 
-		shard_id = interaction.guild.shard_id
+		shard_id = interaction.guild.shard_id if interaction.guild else None
 
 		# command name can be None if comming from a view (like a button click) or a modal
 		command_name = None
