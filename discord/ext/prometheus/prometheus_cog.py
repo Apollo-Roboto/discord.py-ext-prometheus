@@ -128,7 +128,7 @@ class PrometheusCog(commands.Cog):
 
 		# command name can be None if comming from a view (like a button click) or a modal
 		command_name = None
-		if interaction.type == InteractionType.application_command:
+		if interaction.type == InteractionType.application_command and interaction.command:
 			command_name = interaction.command.name
 
 		ON_INTERACTION_COUNTER.labels(shard_id, interaction.type.name, command_name).inc()
