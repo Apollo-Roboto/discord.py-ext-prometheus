@@ -43,6 +43,7 @@ at `localhost:8000/metrics`.
 
 ```python
 import asyncio
+from discord import Intents
 from discord.ext import commands
 from discord.ext.prometheus import PrometheusCog
 
@@ -64,6 +65,7 @@ asyncio.run(main())
 ```python
 import asyncio
 import logging
+from discord import Intents
 from discord.ext import commands
 from discord.ext.prometheus import PrometheusCog, PrometheusLoggingHandler
 
