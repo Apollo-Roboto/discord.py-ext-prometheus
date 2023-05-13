@@ -1,6 +1,6 @@
-![PyPi](https://img.shields.io/pypi/v/discord-ext-prometheus.svg)
 
 # discord-ext-prometheus
+![PyPi Version](https://img.shields.io/pypi/v/discord-ext-prometheus.svg) ![PyPI Python Version](https://img.shields.io/pypi/pyversions/discord-ext-prometheus.svg?logo=python&logoColor=gold) ![License MIT](https://img.shields.io/pypi/l/discord-ext-prometheus)
 
 This is a library that makes it easy to add prometheus metrics to your Python Discord bot.
 
