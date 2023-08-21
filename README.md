@@ -1,6 +1,9 @@
 
 # discord-ext-prometheus
-![PyPi Version](https://img.shields.io/pypi/v/discord-ext-prometheus.svg) ![PyPI Python Version](https://img.shields.io/pypi/pyversions/discord-ext-prometheus.svg?logo=python&logoColor=gold) ![License MIT](https://img.shields.io/pypi/l/discord-ext-prometheus)
+![PyPi Version](https://img.shields.io/pypi/v/discord-ext-prometheus.svg)
+![PyPI Python Version](https://img.shields.io/pypi/pyversions/discord-ext-prometheus.svg?logo=python&logoColor=gold)
+![License MIT](https://img.shields.io/pypi/l/discord-ext-prometheus)
+![Grafana Dashboard Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fdashboards%2F17670&query=%24.downloads&logo=Grafana&label=downloads&color=orange)
 
 This is a library that makes it easy to add prometheus metrics to your Python Discord bot.
 
