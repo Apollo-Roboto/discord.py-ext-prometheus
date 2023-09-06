@@ -13,14 +13,16 @@ readme = "README.md"
 license = "MIT"
 keywords = ["Prometheus", "Discord", "Metrics", "Bot", "Analytics", "Extension"]
 packages = [{ include = "discord" }]
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
-	"prometheus-client==0.16.0",
-	"discord.py==2.2.3",
+	"prometheus-client==0.16.*",
+	"discord.py==2.2.*",
 ]
 classifiers = [
 	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.9",
 	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
 	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
 	"Natural Language :: English",
