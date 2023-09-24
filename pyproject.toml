@@ -15,8 +15,8 @@ keywords = ["Prometheus", "Discord", "Metrics", "Bot", "Analytics", "Extension"]
 packages = [{ include = "discord" }]
 requires-python = ">=3.8"
 dependencies = [
-	"prometheus-client==0.16.*",
-	"discord.py==2.2.*",
+	"prometheus-client>=0.16.0,<1",
+	"discord.py>=2.2.3,<3",
 ]
 classifiers = [
 	"Programming Language :: Python :: 3",
