@@ -3,7 +3,7 @@ from discord.ext.prometheus import PrometheusCog
 from discord.ext import commands
 from discord import Intents
 
-class TestCog(unittest.TestCase):
+class TestCog(unittest.IsolatedAsyncioTestCase):
 	"""
 	Testing the PrometheusCog class
 	"""
