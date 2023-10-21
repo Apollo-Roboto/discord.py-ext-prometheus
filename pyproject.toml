@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "discord-ext-prometheus"
-version = "0.1.5"
+version = "0.2.0"
 authors = [
   { name="Apollo-Roboto", email="Apollo_Roboto@outlook.com" },
 ]
@@ -30,6 +30,11 @@ classifiers = [
 	"Topic :: Software Development :: Libraries",
 	"Topic :: Software Development :: Libraries :: Python Modules",
 	"Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+test = [
+	"pylint==2.17.4"
 ]
 
 [project.urls]

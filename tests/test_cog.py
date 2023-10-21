@@ -8,13 +8,12 @@ class TestCog(unittest.IsolatedAsyncioTestCase):
 	Testing the PrometheusCog class
 	"""
 
-	async def test_can_be_instanciated(self):
-
+	async def test_can_be_instantiated(self):
 		bot = commands.Bot(
 			command_prefix='!',
 			intents=Intents.all()
 		)
-
-		print('test')
-
-		PrometheusCog(bot)
+		cog = PrometheusCog(bot)
+		await bot.add_cog(cog)
+		cog.collect()
+		await bot.close()

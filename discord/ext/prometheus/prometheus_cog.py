@@ -1,125 +1,142 @@
 import logging
-from prometheus_client import start_http_server, Counter, Gauge
-from discord.ext import commands, tasks
+from typing import Optional, Iterable
+
 from discord import Interaction, InteractionType, AutoShardedClient
+from discord.ext import commands, tasks
+from prometheus_client import start_http_server, Gauge, CollectorRegistry
 
-log = logging.getLogger('prometheus')
+logger = logging.getLogger(__name__)
 
-METRIC_PREFIX = 'discord_'
-
-CONNECTION_GAUGE = Gauge(
-	METRIC_PREFIX + 'connected',
-	'Determines if the bot is connected to Discord',
-	['shard'],
-)
-LATENCY_GAUGE = Gauge(
-	METRIC_PREFIX + 'latency',
-	'latency to Discord',
-	['shard'],
-)
-ON_INTERACTION_COUNTER = Counter(
-	METRIC_PREFIX + 'event_on_interaction',
-	'Amount of interactions called by users',
-	['shard', 'interaction', 'command'],
-)
-ON_COMMAND_COUNTER = Counter(
-	METRIC_PREFIX + 'event_on_command',
-	'Amount of commands called by users',
-	['shard', 'command'],
-)
-GUILD_GAUGE = Gauge(
-	METRIC_PREFIX + 'stat_total_guilds',
-	'Amount of guild this bot is a member of'
-)
-CHANNEL_GAUGE = Gauge(
-	METRIC_PREFIX + 'stat_total_channels',
-	'Amount of channels this bot is has access to'
-)
-USER_GAUGE = Gauge(
-	METRIC_PREFIX + 'stat_total_users',
-	'Amount of users this bot can see'
-)
-COMMANDS_GAUGE = Gauge(
-	METRIC_PREFIX + 'stat_total_commands',
-	'Amount of commands'
-)
 
 class PrometheusCog(commands.Cog):
 	"""
 	A Cog to be added to a discord bot. The prometheus server will start once the bot is ready
 	using the `on_ready` listener.
 	"""
+	METRIC_PREFIX = "discord_"
 
-	def __init__(self, bot: commands.Bot, port: int=8000):
+	def __init__(
+		self,
+		bot: commands.Bot,
+		*,
+		run_server: bool = True,
+		port: int = 8000,
+		registry: Optional[CollectorRegistry] = None,
+	) -> None:
 		"""
 		Parameters:
 			bot: The Discord bot
+			run_server: If the Prometheus server should be started
 			port: The port for the Prometheus server
 		"""
 
 		self.bot = bot
 		self.port = port
 
-		self.started = False
+		self.should_run = run_server
 
-		# start() comes from the @task.loop decorator
-		# pylint: disable=no-member
-		self.latency_loop.start()
-		# pylint: enable=no-member
+		self.registry = registry or CollectorRegistry()
+		self.metrics = {}
+
+		self.init_gauges()
+
+	def _m(
+		self,
+		name: str,
+		*,
+		documentation: Optional[str] = None,
+		labels: Optional[Iterable[str]] = None
+	) -> Gauge:
+		"""Get a metric from the registry, creating it if it does not exist."""
+		documentation = documentation or name
+		if name not in self.metrics:
+			self.metrics[name] = Gauge(
+				self.METRIC_PREFIX + name,
+				documentation,
+				registry=self.registry,
+				labelnames=labels or (),
+			)
+		return self.metrics[name]
 
 	def init_gauges(self):
-		log.debug('Initializing gauges')
+		self._m(
+			"connected",
+			documentation="Connection status to Discord",
+			labels=("shard",),
+		)
+		self._m(
+			"errors",
+			documentation="Amount of errors",
+		)
+		self._m(
+			"latency",
+			documentation="Websocket latency to Discord",
+			labels=("shard",),
+		)
+		self._m(
+			"event_on_interaction",
+			documentation="Amount of interactions called by users",
+			labels=("shard", "interaction", "command"),
+		)
+		self._m(
+			"event_on_command",
+			documentation="Amount of commands called by users",
+			labels=("shard", "command"),
+		)
+		stat_total_guilds = self._m(
+			"stat_total_guilds",
+			documentation="Amount of guild this bot is a member of",
+		)
+		stat_total_guilds.set_function(lambda: len(self.bot.guilds))
+		stat_total_channels = self._m(
+			"stat_total_channels",
+			documentation="Amount of channels this bot is has access to",
+		)
+		stat_total_channels.set_function(lambda: len((*self.bot.get_all_channels(),)))
+		stat_total_users = self._m(
+			"stat_total_users",
+			documentation="Amount of users this bot can see",
+		)
+		stat_total_users.set_function(lambda: len(self.bot.users))
+		stat_total_members = self._m(
+			"stat_total_members",
+			documentation="Amount of members this bot can see",
+		)
+		stat_total_members.set_function(lambda: len((*self.bot.get_all_members(),)))
+		stat_total_commands = self._m(
+			"stat_total_commands",
+			documentation="Amount of commands this bot has",
+		)
+		stat_total_commands.set_function(lambda: len((*self.bot.walk_commands(),)))
 
-		num_of_guilds = len(self.bot.guilds)
-		GUILD_GAUGE.set(num_of_guilds)
+	async def cog_load(self) -> None:
+		self.latency_loop.start()
+		if self.should_run:
+			start_http_server(self.port, registry=self.registry)
 
-		num_of_channels = len(set(self.bot.get_all_channels()))
-		CHANNEL_GAUGE.set(num_of_channels)
+	async def cog_unload(self) -> None:
+		self.latency_loop.cancel()
 
-		num_of_users = len(set(self.bot.get_all_members()))
-		USER_GAUGE.set(num_of_users)
-
-		num_of_commands = len(self.get_all_commands())
-		COMMANDS_GAUGE.set(num_of_commands)
-
-	def get_all_commands(self):
-		return [
-			*self.bot.walk_commands(),
-			*self.bot.tree.walk_commands()
-		]
-
-	def start_prometheus(self):
-		log.debug(f'Starting Prometheus Server on port {self.port}')
-		start_http_server(self.port)
-		self.started = True
+	def collect(self):
+		for _ in self.registry.collect():
+			pass
 
 	@tasks.loop(seconds=5)
 	async def latency_loop(self):
 		if isinstance(self.bot, AutoShardedClient):
 			for shard, latency in self.bot.latencies:
-				LATENCY_GAUGE.labels(shard).set(latency)
+				self._m("latency").labels(shard).set(latency)
 		else:
-			LATENCY_GAUGE.labels(None).set(self.bot.latency)
+			self._m("latency").labels(None).set(self.bot.latency)
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-
-		# some gauges needs to be initialized after each reconect
-		# (value could changed during an outtage)
-		self.init_gauges()
-
-		# Set connection back up (since we in on_ready)
-		CONNECTION_GAUGE.labels(None).set(1)
-
-		# on_ready can be called multiple times, this started
-		# check is to make sure the service does not start twice
-		if not self.started:
-			self.start_prometheus()
+		self.collect()
 
 	@commands.Cog.listener()
 	async def on_command(self, ctx: commands.Context):
 		shard_id = ctx.guild.shard_id if ctx.guild else None
-		ON_COMMAND_COUNTER.labels(shard_id, ctx.command.name).inc()
+		self._m("event_on_command").labels(shard_id, ctx.command.name).inc()
 
 	@commands.Cog.listener()
 	async def on_interaction(self, interaction: Interaction):
@@ -131,58 +148,63 @@ class PrometheusCog(commands.Cog):
 		if interaction.type == InteractionType.application_command and interaction.command:
 			command_name = interaction.command.name
 
-		ON_INTERACTION_COUNTER.labels(shard_id, interaction.type.name, command_name).inc()
+		self._m("event_on_interaction").labels(shard_id, interaction.type.name, command_name).inc()
+
+	# Connection events
 
 	@commands.Cog.listener()
 	async def on_connect(self):
-		CONNECTION_GAUGE.labels(None).set(1)
+		self._m("connected").labels(None).set(1)
 
 	@commands.Cog.listener()
 	async def on_resumed(self):
-		CONNECTION_GAUGE.labels(None).set(1)
+		self._m("connected").labels(None).set(1)
 
 	@commands.Cog.listener()
 	async def on_disconnect(self):
-		CONNECTION_GAUGE.labels(None).set(0)
+		self._m("connected").labels(None).set(0)
 
 	@commands.Cog.listener()
 	async def on_shard_ready(self, shard_id):
-		CONNECTION_GAUGE.labels(shard_id).set(1)
+		self._m("connected").labels(shard_id).set(1)
 
 	@commands.Cog.listener()
 	async def on_shard_connect(self, shard_id):
-		CONNECTION_GAUGE.labels(shard_id).set(1)
+		self._m("connected").labels(shard_id).set(1)
 
 	@commands.Cog.listener()
 	async def on_shard_resumed(self, shard_id):
-		CONNECTION_GAUGE.labels(shard_id).set(1)
+		self._m("connected").labels(shard_id).set(1)
 
 	@commands.Cog.listener()
 	async def on_shard_disconnect(self, shard_id):
-		CONNECTION_GAUGE.labels(shard_id).set(0)
+		self._m("connected").labels(shard_id).set(0)
+
+	# Collector cues
 
 	@commands.Cog.listener()
 	async def on_guild_join(self, _):
-		# The number of guilds, channels and users needs to be updated all together
-		self.init_gauges()
+		self.collect()
 
 	@commands.Cog.listener()
 	async def on_guild_remove(self, _):
-		# The number of guilds, channels and users needs to be updated all together
-		self.init_gauges()
+		self.collect()
 
 	@commands.Cog.listener()
 	async def on_guild_channel_create(self, _):
-		CHANNEL_GAUGE.inc()
+		self.collect()
 
 	@commands.Cog.listener()
 	async def on_guild_channel_delete(self, _):
-		CHANNEL_GAUGE.dec()
+		self.collect()
 
 	@commands.Cog.listener()
 	async def on_member_join(self, _):
-		USER_GAUGE.inc()
+		self.collect()
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, _):
-		USER_GAUGE.dec()
+		self.collect()
+
+
+__all__ = ("PrometheusCog",)
