@@ -7,7 +7,7 @@
 ![License MIT](https://img.shields.io/pypi/l/discord-ext-prometheus)
 ![Grafana Dashboard Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fdashboards%2F17670&query=%24.downloads&logo=Grafana&label=downloads&color=orange)
 
-This is a library that makes it easy to add prometheus metrics to your Python Discord bot.
+This is a extension library for [discord.py](https://github.com/Rapptz/discord.py) that makes it easy to add prometheus metrics to your Python Discord bot.
 
 # Installation
 
@@ -37,7 +37,7 @@ Notes:
 
 ![Dashboard Preview](https://grafana.com/api/dashboards/17670/images/13525/image)
 
-Available to import from [Grafana dashboards](https://grafana.com/grafana/dashboards/17670-discord-bot/)
+Available to import from [Grafana dashboards](https://grafana.com/grafana/dashboards/17670-discord-bot/).
 
 # How to use
 
@@ -53,14 +53,14 @@ from discord.ext import commands
 from discord.ext.prometheus import PrometheusCog
 
 async def main():
-	bot = commands.Bot(
-		command_prefix='!',
-		intents=Intents.all(),
-	)
+    bot = commands.Bot(
+        command_prefix="!",
+        intents=Intents.all(),
+    )
 
-	await bot.add_cog(PrometheusCog(bot))
+    await bot.add_cog(PrometheusCog(bot))
 
-	await bot.start('YOUR TOKEN')
+    await bot.start("YOUR TOKEN")
 
 asyncio.run(main())
 ```
@@ -77,24 +77,24 @@ from discord.ext.prometheus import PrometheusCog, PrometheusLoggingHandler
 logging.getLogger().addHandler(PrometheusLoggingHandler())
 
 async def main():
-	bot = commands.Bot(
-		command_prefix='!',
-		intents=Intents.all(),
-	)
+    bot = commands.Bot(
+        command_prefix="!",
+        intents=Intents.all(),
+    )
 
-	await bot.add_cog(PrometheusCog(bot))
+    await bot.add_cog(PrometheusCog(bot))
 
-	@bot.listen()
-	async def on_ready():
-		logging.info(f'Logged in as {bot.user.name}#{bot.user.discriminator}')
+    @bot.listen()
+    async def on_ready():
+        logging.info(f"Logged in as {bot.user.name}#{bot.user.discriminator}")
 
-	logging.info('Starting the bot')
-	await bot.start('YOUR TOKEN')
+    logging.info("Starting the bot")
+    await bot.start("YOUR TOKEN")
 
 asyncio.run(main())
 ```
 
-## Change the Prometheus port
+## Changing the Prometheus port
 
 The default port is `8000` but can be changed while creating the cog.
 
