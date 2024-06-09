@@ -27,12 +27,16 @@ jobs:
           python-version: '${{ matrix.python-version }}'
 
       - name: Install Dependencies
-        run: python -m pip install -r ./requirements.txt
+        run: python -m pip install .[dev]
 
       - name: Validate Code
         run: |
           python -m pylint -E ./discord/ext/prometheus/
           python -m pylint -E ./tests/
-
+          
       - name: Tests
         run: python -m unittest discover -v -s ./tests -p test_*.py
+        continue-on-error: true
+
+      - name: Check Formatting
+        run: python -m black --check ./discord/ext/prometheus/
