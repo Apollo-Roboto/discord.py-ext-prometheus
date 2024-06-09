@@ -1,5 +1,2 @@
-[PYLINT]
-indent-string='\t'
-
 [MESSAGE CONTROL]
 disable=C0114, C0116, W1203

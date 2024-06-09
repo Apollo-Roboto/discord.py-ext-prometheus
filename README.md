@@ -1,7 +1,9 @@
 
 # discord-ext-prometheus
-![PyPi Version](https://img.shields.io/pypi/v/discord-ext-prometheus.svg)
+
+![PyPI Version](https://img.shields.io/pypi/v/discord-ext-prometheus.svg)
 ![PyPI Python Version](https://img.shields.io/pypi/pyversions/discord-ext-prometheus.svg?logo=python&logoColor=gold)
+![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 ![License MIT](https://img.shields.io/pypi/l/discord-ext-prometheus)
 ![Grafana Dashboard Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fdashboards%2F17670&query=%24.downloads&logo=Grafana&label=downloads&color=orange)
 
