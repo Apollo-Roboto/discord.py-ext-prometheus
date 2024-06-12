@@ -1412,7 +1412,7 @@
       {
         "allValue": "",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -1421,7 +1421,7 @@
           "uid": "edj9pxm9uzmrkc"
         },
         "definition": "label_values(discord_connected, job)",
-        "description": "The job",
+        "description": "The Prometheus job",
         "hide": 0,
         "includeAll": true,
         "label": "Job",
@@ -1448,6 +1448,6 @@
   "timezone": "",
   "title": "Discord Bot",
   "uid": "TGkTuzD4z",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
