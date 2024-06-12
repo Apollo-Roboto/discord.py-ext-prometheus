@@ -20,7 +20,7 @@ pip install discord-ext-prometheus
 | Name                           | Documentation                                 | Labels                            |
 |--------------------------------|-----------------------------------------------|-----------------------------------|
 | `discord_connected`            | Determines if the bot is connected to Discord | `shard`                           |
-| `discord_latency`              | Latency to Discord                            | `shard`                           |
+| `discord_latency_seconds`      | Latency to Discord                            | `shard`                           |
 | `discord_event_on_interaction` | Amount of interactions called by users        | `shard`, `interaction`, `command` |
 | `discord_event_on_command`     | Amount of commands called by users            | `shard`, `command`                |
 | `discord_stat_total_guilds`    | Amount of guild this bot is a member of       | None                              |
