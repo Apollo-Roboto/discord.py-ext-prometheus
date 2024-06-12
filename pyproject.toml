@@ -1,6 +1,6 @@
 [project]
 name = "discord-ext-prometheus"
-version = "0.1.5"
+version = "0.2.0"
 authors = [{ name = "Apollo-Roboto", email = "Apollo_Roboto@outlook.com" }]
 description = "An extension for the discord.py library that enables Prometheus metrics"
 readme = "README.md"
