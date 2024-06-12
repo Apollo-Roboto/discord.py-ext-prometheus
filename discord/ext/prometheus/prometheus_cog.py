@@ -13,9 +13,10 @@ CONNECTION_GAUGE = Gauge(
     ["shard"],
 )
 LATENCY_GAUGE = Gauge(
-    METRIC_PREFIX + "latency",
-    "latency to Discord",
-    ["shard"],
+    METRIC_PREFIX + 'latency',
+    'latency to Discord',
+    ['shard'],
+    unit="seconds",
 )
 ON_INTERACTION_COUNTER = Counter(
     METRIC_PREFIX + "event_on_interaction",
