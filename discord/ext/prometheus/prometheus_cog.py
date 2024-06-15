@@ -2,6 +2,7 @@ import logging
 from prometheus_client import start_http_server, Counter, Gauge
 from discord.ext import commands, tasks
 from discord import Interaction, InteractionType, AutoShardedClient
+from discord.app_commands.commands import Command
 
 log = logging.getLogger("prometheus")
 
@@ -124,7 +125,18 @@ class PrometheusCog(commands.Cog):
             interaction.type == InteractionType.application_command
             and interaction.command
         ):
-            command_name = interaction.command.name
+            if isinstance(interaction.command, Command):
+                # Slash Command
+                command_name = ""
+                parent = interaction.command.parent
+                while parent is not None:
+                    # Handle subcommands
+                    command_name += parent.name + " "
+                    parent = parent.parent
+                command_name += interaction.command.name
+            else:
+                # Context Menu Button
+                command_name = interaction.command.name
 
         ON_INTERACTION_COUNTER.labels(
             shard_id, interaction.type.name, command_name
