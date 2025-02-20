@@ -3,6 +3,7 @@ from prometheus_client import start_http_server, Counter, Gauge
 from discord.ext import commands, tasks
 from discord import Interaction, InteractionType, AutoShardedClient
 from discord.app_commands.commands import Command
+from discord.ext.commands.bot import BotBase
 
 log = logging.getLogger("prometheus")
 
@@ -48,7 +49,7 @@ class PrometheusCog(commands.Cog):
     using the `on_ready` listener.
     """
 
-    def __init__(self, bot: commands.Bot, port: int = 8000):
+    def __init__(self, bot: BotBase, port: int = 8000):
         """
         Parameters:
                 bot: The Discord bot
